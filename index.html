@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonBG | Pixel-Perfect Background Remover</title>
+    <style>
+        /* New Neon Color Palette */
+        :root {
+            --primary: #6e44ff;       /* Electric purple */
+            --secondary: #ff4d88;     /* Hot pink */
+            --accent: #2bffea;        /* Cyan */
+            --dark: #0f0a1a;          /* Deep purple-black */
+            --light: #f0f0ff;         /* Off-white with blue tint */
+            --success: #00ff88;       /* Mint green */
+            --pixel-dark: #1a1030;
+            --pixel-light: #e0e0ff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+        }
+        
+        body {
+            font-family: 'Press Start 2P', cursive, monospace;
+            background-color: var(--dark);
+            color: var(--light);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-image: 
+                linear-gradient(rgba(15, 10, 26, 0.9), rgba(15, 10, 26, 0.9)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect width="8" height="8" x="0" y="0" fill="%230f0a1a"/><rect width="8" height="8" x="8" y="8" fill="%230f0a1a"/><rect width="8" height="8" x="0" y="8" fill="%236e44ff"/><rect width="8" height="8" x="8" y="0" fill="%236e44ff"/></svg>');
+            background-size: 16px 16px;
+        }
+        
+        /* Smoother Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+        
+        @keyframes neon-glow {
+            0%, 100% { text-shadow: 0 0 5px var(--primary), 0 0 10px var(--secondary); }
+            50% { text-shadow: 0 0 10px var(--accent), 0 0 20px var(--secondary); }
+        }
+        
+        @keyframes border-glow {
+            0%, 100% { box-shadow: 0 0 5px var(--primary), 0 0 10px var(--secondary); }
+            50% { box-shadow: 0 0 15px var(--accent), 0 0 25px var(--secondary); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Improved Pixel Border */
+        .pixel-border {
+            border: 4px solid var(--primary);
+            position: relative;
+            box-shadow: 0 0 10px rgba(110, 68, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .pixel-border::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 2px solid var(--accent);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .pixel-border:hover::after {
+            opacity: 0.6;
+        }
+        
+        .pixel-border:hover {
+            animation: border-glow 2s infinite;
+        }
+        
+        /* Enhanced Pixel Button */
+        .pixel-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 var(--secondary);
+        }
+        
+        .pixel-button:hover {
+            background-color: var(--secondary);
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--secondary);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .pixel-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 var(--secondary);
+        }
+        
+        .pixel-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .pixel-button:hover::before {
+            left: 100%;
+        }
+        
+        .pixel-button.loading::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 3px solid var(--light);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Layout with Improved Animations */
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        header {
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--light);
+            text-shadow: 4px 4px 0 var(--primary);
+            margin: 0 0 10px 0;
+            transition: all 0.3s ease;
+            animation: neon-glow 3s infinite;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Upload Section with Smoother Animation */
+        .upload-section {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--pixel-dark);
+            padding: 30px;
+            text-align: center;
+            margin: 0 auto 40px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+        
+        .upload-box {
+            background-color: rgba(110, 68, 255, 0.1);
+            padding: 40px 20px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+        
+        .upload-box:hover {
+            background-color: rgba(110, 68, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .upload-box i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-box:hover i {
+            transform: scale(1.2);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Preview Section with Enhanced Animations */
+        .preview-section {
+            display: none;
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--pixel-dark);
+            padding: 30px;
+            text-align: center;
+            margin: 0 auto 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .preview-images {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        @media (min-width: 600px) {
+            .preview-images {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+        
+        .preview-image {
+            flex: 1;
+            min-width: 0;
+            transition: all 0.4s ease;
+        }
+        
+        .preview-image h4 {
+            margin: 0 0 15px 0;
+            color: var(--light);
+            text-shadow: 2px 2px 0 var(--primary);
+        }
+        
+        .preview-image img {
+            max-width: 100%;
+            background-color: var(--dark);
+            border: 4px solid var(--primary);
+            transition: all 0.4s ease;
+        }
+        
+        .preview-image img:hover {
+            transform: scale(1.03);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(43, 255, 234, 0.4);
+        }
+        
+        /* Features Section with Staggered Animations */
+        .features-section {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--pixel-dark);
+            padding: 30px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        @media (min-width: 400px) {
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .feature {
+            background-color: rgba(110, 68, 255, 0.1);
+            padding: 25px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .feature.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .feature:nth-child(1) { transition-delay: 0.1s; }
+        .feature:nth-child(2) { transition-delay: 0.2s; }
+        .feature:nth-child(3) { transition-delay: 0.3s; }
+        .feature:nth-child(4) { transition-delay: 0.4s; }
+        
+        .feature:hover {
+            transform: translateY(-8px) scale(1.03);
+            background-color: rgba(110, 68, 255, 0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .feature i {
+            font-size: 36px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .feature:hover i {
+            transform: scale(1.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Footer with Glow Effect */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            color: var(--light);
+            font-size: 12px;
+            position: relative;
+        }
+        
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 24px;
+            }
+            
+            .upload-box, .preview-section, .features-section {
+                padding: 20px 15px;
+            }
+            
+            .pixel-button {
+                padding: 10px 20px;
+                font-size: 11px;
+            }
+            
+            .feature {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="logo pixel-border">NEONBG</h1>
+            <p>Remove backgrounds with pixel-perfect precision!</p>
+        </header>
+        
+        <main class="main-content">
+            <section class="upload-section pixel-border">
+                <div class="upload-box pixel-border" id="uploadBox">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>UPLOAD IMAGE</h3>
+                    <p>Click or drop your image here</p>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+                <button class="pixel-button" id="processBtn" disabled>REMOVE BG</button>
+            </section>
+            
+            <section class="preview-section pixel-border" id="previewSection">
+                <h3>RESULT PREVIEW</h3>
+                <div class="preview-images">
+                    <div class="preview-image">
+                        <h4>ORIGINAL</h4>
+                        <img id="originalPreview" src="" alt="Original Image">
+                    </div>
+                    <div class="preview-image">
+                        <h4>RESULT</h4>
+                        <img id="resultPreview" src="" alt="Result Image">
+                    </div>
+                </div>
+                <button class="pixel-button" id="downloadBtn">
+                    <i class="fas fa-download"></i> DOWNLOAD
+                </button>
+            </section>
+            
+            <section class="features-section pixel-border">
+                <h3>WHY USE NEONBG?</h3>
+                <div class="features-grid">
+                    <div class="feature pixel-border">
+                        <i class="fas fa-bolt"></i>
+                        <h3>LIGHTNING FAST</h3>
+                        <p>Processes in seconds with our optimized AI</p>
+                    </div>
+                    <div class="feature pixel-border">
+                        <i class="fas fa-gamepad"></i>
+                        <h3>PIXEL-PERFECT</h3>
+                        <p>Crisp edges for your digital creations</p>
+                    </div>
+                    <div class="feature pixel-border">
+                        <i class="fas fa-lock"></i>
+                        <h3>SECURE</h3>
+                        <p>Your images are never stored</p>
+                    </div>
+                    <div class="feature pixel-border">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h3>MOBILE FRIENDLY</h3>
+                        <p>Works perfectly on all devices</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>© 2023 NEONBG | Powered by remove.bg API</p>
+        </footer>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const previewSection = document.getElementById('previewSection');
+        const originalPreview = document.getElementById('originalPreview');
+        const resultPreview = document.getElementById('resultPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const features = document.querySelectorAll('.feature');
+        
+        // API Configuration
+        const API_KEY = 'YOUR_API_KEY'; // Replace with your remove.bg API key
+        let processedImageUrl = null;
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animate features on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { 
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+            
+            features.forEach(feature => observer.observe(feature));
+            
+            // Add initial animation to upload section
+            setTimeout(() => {
+                uploadBox.style.animation = 'pulse 2s ease infinite';
+            }, 1000);
+        });
+
+        // Upload Box Interactions
+        uploadBox.addEventListener('click', () => {
+            fileInput.click();
+            uploadBox.style.animation = 'none';
+            setTimeout(() => {
+                uploadBox.style.animation = 'pulse 2s ease infinite';
+            }, 100);
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                processBtn.disabled = false;
+                
+                // Show file info with animation
+                uploadBox.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: var(--success)"></i>
+                    <h3>${file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name}</h3>
+                    <p>${(file.size / 1024).toFixed(2)} KB</p>
+                `;
+                uploadBox.style.animation = 'pulse 0.5s ease';
+                
+                // Preview original image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalPreview.src = e.target.result;
+                    originalPreview.style.animation = 'fadeIn 0.6s ease';
+                };
+                reader.readAsDataURL(file);
+                
+                // Hide preview section if shown
+                previewSection.style.display = 'none';
+            }
+        });
+
+        // Enhanced Drag and Drop with animations
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.style.backgroundColor = 'rgba(110, 68, 255, 0.3)';
+            uploadBox.style.animation = 'pulse 0.8s ease infinite';
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.style.backgroundColor = 'rgba(110, 68, 255, 0.1)';
+            uploadBox.style.animation = 'pulse 2s ease infinite';
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.style.backgroundColor = 'rgba(110, 68, 255, 0.1)';
+            uploadBox.style.animation = 'pulse 0.5s ease';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Process Button with Enhanced Loading Animation
+        processBtn.addEventListener('click', async () => {
+            if (!fileInput.files.length) return;
+            
+            processBtn.disabled = true;
+            processBtn.classList.add('loading');
+            processBtn.innerHTML = 'PROCESSING';
+            
+            const formData = new FormData();
+            formData.append('image_file', fileInput.files[0]);
+            formData.append('size', 'auto');
+            
+            try {
+                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': API_KEY,
+                    },
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                processedImageUrl = URL.createObjectURL(blob);
+                resultPreview.src = processedImageUrl;
+                resultPreview.style.animation = 'fadeIn 0.6s ease, pulse 2s ease infinite';
+                
+                // Show preview section with smooth scroll
+                previewSection.style.display = 'block';
+                setTimeout(() => {
+                    previewSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }, 300);
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error(error);
+            } finally {
+                processBtn.disabled = false;
+                processBtn.classList.remove('loading');
+                processBtn.innerHTML = 'REMOVE BG';
+            }
+        });
+
+        // Download Button with Enhanced Feedback
+        downloadBtn.addEventListener('click', () => {
+            if (!processedImageUrl) return;
+            
+            const a = document.createElement('a');
+            a.href = processedImageUrl;
+            a.download = 'neon-bg-removed.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // Enhanced button animation
+            downloadBtn.innerHTML = '<i class="fas fa-check"></i> DOWNLOADED!';
+            downloadBtn.style.backgroundColor = 'var(--success)';
+            downloadBtn.style.boxShadow = '0 4px 0 var(--primary)';
+            
+            setTimeout(() => {
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> DOWNLOAD';
+                downloadBtn.style.backgroundColor = 'var(--primary)';
+                downloadBtn.style.boxShadow = '0 4px 0 var(--secondary)';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
