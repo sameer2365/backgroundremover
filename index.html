@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClearCut | Background Remover</title>
+    <style>
+        :root {
+            --primary: #2c3e50;       /* Navy blue */
+            --secondary: #3498db;     /* Sky blue */
+            --light: #ecf0f1;         /* Light gray */
+            --text: #333333;          /* Dark gray */
+            --border: #bdc3c7;        /* Light gray border */
+            --success: #27ae60;       /* Green */
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: #f9f9f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 0 20px;
+            margin: 0 auto;
+        }
+        
+        /* Simplified Header */
+        header {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        /* Hero Section (Mobile First) */
+        .hero {
+            padding: 40px 0;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .hero h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .hero p {
+            font-size: 16px;
+            color: #666;
+            margin: 0 auto 30px;
+            max-width: 500px;
+            padding: 0 15px;
+        }
+        
+        /* Upload Container */
+        .upload-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            max-width: 500px;
+            margin: 0 auto;
+            border: 1px solid var(--border);
+        }
+        
+        .upload-box {
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            padding: 30px 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-box:hover {
+            border-color: var(--secondary);
+        }
+        
+        .upload-box i {
+            font-size: 40px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            max-width: 250px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Preview Section */
+        .preview-container {
+            display: none;
+            margin-top: 25px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .preview-images {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .preview-image img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Simple Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+        
+        /* Loading Animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            position: relative;
+            padding-right: 40px;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Desktop Adjustments */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                padding: 0 30px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .upload-container {
+                padding: 40px;
+            }
+            
+            .preview-images {
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .preview-image {
+                flex: 1;
+                min-width: 250px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">ClearCut</div>
+        </div>
+    </header>
+    
+    <main class="hero">
+        <div class="container">
+            <h1>Remove Backgrounds Instantly</h1>
+            <p>Upload your image and get a transparent background in seconds.</p>
+            
+            <div class="upload-container">
+                <div class="upload-box" id="uploadBox">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Upload Image</h3>
+                    <p>Click or drop your file here</p>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+                <button class="btn btn-primary" id="processBtn" disabled>Remove Background</button>
+                
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-images">
+                        <div class="preview-image">
+                            <h4>Original</h4>
+                            <img id="originalPreview" src="" alt="Original Image">
+                        </div>
+                        <div class="preview-image">
+                            <h4>Result</h4>
+                            <img id="resultPreview" src="" alt="Result Image">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>© 2023 ClearCut | Powered by remove.bg API</p>
+        </div>
+    </footer>
+    
+    <script>
+        // DOM Elements
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const originalPreview = document.getElementById('originalPreview');
+        const resultPreview = document.getElementById('resultPreview');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // API Configuration
+        const API_KEY = 'xkpRYqxtC5aqR37UdW7zw6NC'; // Replace with your remove.bg API key
+        let processedImageUrl = null;
+
+        // Upload Box Click Handler
+        uploadBox.addEventListener('click', () => fileInput.click());
+
+        // File Input Change Handler
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                processBtn.disabled = false;
+                
+                // Show file info
+                uploadBox.innerHTML = `
+                    <i class="fas fa-check-circle" style="color: var(--success)"></i>
+                    <h3>${file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name}</h3>
+                    <p>${(file.size / 1024).toFixed(2)} KB</p>
+                `;
+                
+                // Preview original image
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalPreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                // Hide preview section if shown
+                previewContainer.style.display = 'none';
+            }
+        });
+
+        // Drag and Drop Handlers
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.style.borderColor = 'var(--secondary)';
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.style.borderColor = 'var(--border)';
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.style.borderColor = 'var(--border)';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Process Button Click (Remove.bg API Call)
+        processBtn.addEventListener('click', async () => {
+            if (!fileInput.files.length) return;
+            
+            processBtn.disabled = true;
+            processBtn.classList.add('loading');
+            processBtn.innerHTML = 'Processing';
+            
+            const formData = new FormData();
+            formData.append('image_file', fileInput.files[0]);
+            formData.append('size', 'auto');
+            
+            try {
+                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': API_KEY,
+                    },
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                processedImageUrl = URL.createObjectURL(blob);
+                resultPreview.src = processedImageUrl;
+                
+                // Show preview section
+                previewContainer.style.display = 'block';
+                
+                // Smooth scroll to results on mobile
+                previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+            } catch (error) {
+                alert('Failed to process image. Please try again.');
+                console.error(error);
+            } finally {
+                processBtn.disabled = false;
+                processBtn.classList.remove('loading');
+                processBtn.innerHTML = 'Remove Background';
+            }
+        });
+
+        // Download Button Click
+        downloadBtn.addEventListener('click', () => {
+            if (!processedImageUrl) return;
+            
+            const a = document.createElement('a');
+            a.href = processedImageUrl;
+            a.download = 'no-background.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+    </script>
+</body>
+</html>
